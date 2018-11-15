@@ -5,6 +5,8 @@ const multer = require('multer');
 router.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
 router.use(bodyParser.json({limit: '500mb'}));
 const User = require('../user/User');
+var redis = require('redis');
+var client = redis.createClient();
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -55,6 +57,9 @@ router.get('/login', function(req, res) {
     User.update({ email: email }, {
 		$set: { token: token }
 	})
+	client.hmset(decoded.id, token, (err) => {
+		client.expire(decoded.id, decoded.exp)
+	});
     res.status(200).send({auth: true, message: "login successful"});
   });
 });
@@ -143,18 +148,36 @@ router.get('/logout', function(req, res) {
   if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
   
   jwt.verify(token, config.secret, function(err, decoded) {
+  	console.log(decoded)
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     const email = decoded.email
     User.update({ email: email }, { 
     	$unset: { token:1 }}, 
-    	false, 
-    	true,
 	function (err, user) {
 	    if (err) return res.status(500).send("There was a problem in logout.")
-	    res.status(200).send(user);
-	}); 
-    res.status(200).send("logout successful");
+	    res.status(200).send("logout successful");
+	});
+	client.sadd("expired", decoded.id, (err) => {
+		
+	});
   });
+});
+
+
+
+///////////////// CRON SETUP TO DELETE BLACKLISTED KEYS /////////////////////////
+
+
+
+const cron = require('node-cron');
+
+cron.schedule('* * * * *', () => {
+  	client.smembers("expired", function (err, reply) {
+  		console.log("reply:: "+reply)
+  		const arrayOfReplies = reply
+
+  	})
+
 });
 
 

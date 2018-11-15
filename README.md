@@ -1,21 +1,47 @@
 # nodejs-restful-api
-![RESTful API design with Node.js](https://cdn-images-1.medium.com/max/2000/1*jjYC9tuf4C3HkHCP5PcKTA.jpeg "RESTful API design with Node.js")
 
-How to create a RESTful CRUD API using Nodejs?
+please go through the instruction:
 
-This tutorial will demo how to set up a bare bones 
-API using mongodb as the database.
 
-It consist of a User model and controller. The model
-defines the data, and the controller will contain all 
-the business logic needed to interact with the database. 
+# SIGNUP
 
-It has a db file which will be used to
-connect the app to the database, and an app file used
-for bootstrapping the application itself.
+PATH: `/signup` (POST)
+SUMMARY: you have to pass `email`, `name`, `password` in post request. you'll get `x-access-token` in response with key `token`.
 
-The server file is used to spin up the server and tells the
-app to listen on a specific port.
 
-Full tutorial can be found at:
-https://hackernoon.com/restful-api-design-with-node-js-26ccf66eab09#.s5l66zyeu
+# LOGIN:
+
+PATH: `/login` (GET)
+SUMMARY: for login You have to pass `x-access-token`, created at the time of signup. then there will be an insert of `x-access-token` in user db as a field token.
+
+
+# CHANGE PASSWORD:
+
+PATH: '/changePassword' (POST)
+SUMMARY: for change password, pass `x-access-token` as a header and `new_password` as a bodydata.
+
+
+# EDIT USER DETAILS:
+
+PATH: '/editUseDetails' (POST)
+SUMMARY: pass any value from these: `email`, `name`, `password` or all three in bodydata and `x-access-token` in headers. then user details passed will only be update.
+
+
+# USER INFO:
+
+PATH: '/userInfo' (GET)
+SUMMARY: pass `x-access-token` in headers and it'll provide all user data.
+
+
+# PROFILE IMAGE UPLOAD:
+
+PATH: '/profile_image_upload' (POST)
+SUMMARY: pass `x-access-token` in headers and file image. it'll update in destination folder.
+
+
+# LOGOUT:
+
+PATH: '/logout' (GET)
+SUMMARY: on logout event you have to pass `x-access-token` in request because there is no browser for now and we can not remove jwt tokens before expiry time so I'll remove thgem from user collection. In the same case we can insert these tokens in redis db so that we can have track about expired tokens.
+
+
